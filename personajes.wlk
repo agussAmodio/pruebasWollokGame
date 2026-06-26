@@ -4,10 +4,13 @@ class Personaje{
     var property vida = vidaMaxima
     var property fuerza
     var property defensa
+
+    
    
    // atributos requeridos por wollok game
    var property position = null
    var property image = null
+   var property estaDefendiendose = false
     
 
     method atacar(unEnemigo) {
@@ -22,5 +25,8 @@ class Personaje{
         return vida > 0
     }
 
+    method defenderse() {
+        estaDefendiendose = true
+    }
     
 }

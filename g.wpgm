@@ -1,6 +1,52 @@
 import wollok.game.*
+import personajes.*
+import managerDeBatallas.*
+import opcionMenu.*
+import barraDeVida.*
 
 program juego {
-    
+    game.title("Combate por Turnos")
+    game.height(10)
+    game.width(15)
+    game.boardGround("fondo_biblioteca.jpeg") // Tu fondo estilo la imagen
+
+    // 2. CREACIÓN DE LOS PERSONAJES (Instancias)
+    const heroe = new Personaje(
+        nombre = "Héroe", 
+        vidaMaxima = 100, 
+        fuerza = 25, 
+        defensa = 10,
+        position = game.at(2, 3), 
+        image = "jugadorPiernas.png"
+    )
+
+    const rival = new Personaje(
+        nombre = "Rival", 
+        vidaMaxima = 120, 
+        fuerza = 20, 
+        defensa = 12,
+        position = game.at(10, 5), 
+        image = "enemigoCombate1.png"
+    )
+
+    managerDeBatallas.jugador(heroe)
+    managerDeBatallas.enemigo(rival)
+
+    const vidaHeroeTexto = new MarcadorVida(personaje = heroe, position = game.at(4, 9))
+    const vidaRivalTexto = new MarcadorVida(personaje = rival, position = game.at(10, 5))
+
+    const menuAcciones = new OpcionMenu(position = game.at(9, 1), image = "cuadroAcciones.png")
+
+    keyboard.a().onPressDo({ managerDeBatallas.procesarTurnoJugador() })      // A -> Atacar
+    keyboard.s().onPressDo({ managerDeBatallas.procesarRendirseJugador() })   // R -> Rendirse
+    keyboard.d().onPressDo({ managerDeBatallas.procesarPocionJugador() })     // E -> Equipo (Poción)
+    keyboard.f().onPressDo({ managerDeBatallas.procesarDefensaJugador() })    // D -> Defenderse
+
+    game.addVisual(heroe)
+    game.addVisual(rival)
+    game.addVisual(menuAcciones)
+    game.addVisual(vidaHeroeTexto)
+    game.addVisual(vidaRivalTexto)
+
     game.start()
 }

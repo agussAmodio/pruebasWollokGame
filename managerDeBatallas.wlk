@@ -72,4 +72,43 @@ object managerDeBatallas {
         }
         // Si ambos siguen vivos, no pasa nada y la pelea continúa
     }
+
+    method procesarPocionJugador() {
+    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
+        // Cura 40 de vida (sin pasar el máximo)
+        jugador.vida((jugador.vida() + 40).min(jugador.vidaMaxima()))
+        game.say(jugador, "¡Usé una poción y recuperé vida!")
+        
+        self.pasarTurnoAlEnemigoAutomaticamente()
+    }
+    }
+
+    // Acción RENDIRSE / DEFENDERSE (Letra R)
+    method procesarRendirseJugador() {
+    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
+        self.finalizarTurno()
+        game.say(jugador, "Me rindo... ¡Vos ganás!")
+        game.say(enemigo, "¡Ja! Sabía que ibas a arrugar.")
+    }
+
+    //PASAR AL MAPA ANTERIOR
+    }
+
+    method pasarTurnoAlEnemigoAutomaticamente() {
+        self.cambiarATurnoEnemigo()
+        game.schedule(1500, { self.ejecutarTurnoEnemigo() })
+    }
+
+    method procesarDefensaJugador() {
+    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
+        
+        jugador.defenderse()
+        game.say(jugador, "¡Me defiendo! El próximo golpe dolerá menos.")
+        
+        // Le pasamos el turno al enemigo de forma automática
+        self.cambiarATurnoEnemigo()
+        game.schedule(1500, { self.ejecutarTurnoEnemigo() })
+    }
+}
+
 }
