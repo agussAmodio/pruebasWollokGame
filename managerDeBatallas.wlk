@@ -1,114 +1,105 @@
 import personajes.*
+object turnoJugador {
+    method atacar(manager) {
+        manager.jugador().atacar(manager.enemigo())
+        game.say(manager.jugador(), "¡Enemigo atacado!")
+        manager.comprobarFinDeBatalla()
+        
+        // Delegamos el pase de turno al estado actual
+        manager.estadoActual().pasarTurno(manager)
+    }
+
+    method usarPocion(manager) {
+        manager.jugador().recibirCuracion(40) 
+        game.say(manager.jugador(), "¡Usé una poción y recuperé vida!")
+        self.pasarTurno(manager)
+    }
+
+    method defenderse(manager) {
+        manager.jugador().defenderse()
+        game.say(manager.jugador(), "¡Me defiendo! El próximo golpe dolerá menos.")
+        self.pasarTurno(manager)
+    }
+
+    method rendirse(manager) {
+        manager.estadoActual(batallaFinalizada)
+        game.say(manager.jugador(), "Me rindo... ¡Vos ganás!")
+        game.say(manager.enemigo(), "¡Ja! Sabía que ibas a arrugar.")
+    }
+
+    // Como soy el turno del jugador y se terminó mi acción, paso al turno enemigo con delay
+    method pasarTurno(manager) {
+        manager.estadoActual(turnoEnemigo)
+        game.schedule(1500, { manager.ejecutarTurnoEnemigo() })
+    }
+}
+
+object turnoEnemigo {
+    method atacar(manager) {}
+    method usarPocion(manager) {}
+    method defenderse(manager) {}
+    method rendirse(manager) {}
+
+    // Cuando el enemigo termina, volvemos al turno del jugador de forma instantánea
+    method pasarTurno(manager) {
+        manager.estadoActual(turnoJugador)
+    }
+}
+
+object batallaFinalizada {
+    method atacar(manager) {}
+    method usarPocion(manager) {}
+    method defenderse(manager) {}
+    method rendirse(manager) {}
+    
+    // Si la batalla terminó, pasar de turno no hace absolutamente nada
+    method pasarTurno(manager) {} 
+}
+
 object managerDeBatallas {
     var property jugador = null
     var property enemigo = null
+    var property estadoActual = turnoJugador 
 
-
-    // REVISAR SI PUEDE MEJORAR
-    var property estadoActual = "TURNO_JUGADOR"
-
-    method esTurnoDelJugador() {
-        return estadoActual == "TURNO_JUGADOR"
+    // Métodos de la interfaz/teclado
+    method procesarAtaqueJugador() {
+        if (jugador.estaVivo()) { estadoActual.atacar(self) }
     }
 
-    method esTurnoDelEnemigo() {
-        return estadoActual == "TURNO_ENEMIGO"
+    method procesarPocionJugador() {
+        if (jugador.estaVivo()) { estadoActual.usarPocion(self) }
     }
 
-    method esTurnoFinalizado() {
-        return estadoActual == "FINALIZADO"
+    method procesarDefensaJugador() {
+        if (jugador.estaVivo()) { estadoActual.defenderse(self) }
     }
 
-    method cambiarATurnoEnemigo() {
-        estadoActual = "TURNO_ENEMIGO"
+    method procesarRendicionJugador() {
+        if (jugador.estaVivo()) { estadoActual.rendirse(self) }
     }
 
-    method cambiarAturnoDelJugador() {
-        estadoActual = "TURNO_JUGADOR"
-    }
-
-    method finalizarTurno() {
-        estadoActual = "FINALIZADO"
-    }
-
-    // Acción que se ejecuta al elegir "ATACAR" en el menú
-    method procesarTurnoJugador() {
-        if (self.esTurnoDelJugador() and jugador.estaVivo()){
-            
-            jugador.atacar(enemigo)
-            game.say(jugador, "¡Enemigo atacado!")
-
-            self.comprobarFinDeBatalla()
-
-            // Si el enemigo no murió, le pasamos el turno
-            if (!self.esTurnoFinalizado()){
-                self.cambiarATurnoEnemigo()
-                game.schedule(1500, { self.ejecutarTurnoEnemigo() })
-            }
-        }
-    }
-
+    // Lógica del enemigo
     method ejecutarTurnoEnemigo() {
-        if (enemigo.estaVivo()){
+        if (enemigo.estaVivo()) {
             enemigo.atacar(jugador)
             game.say(enemigo, "¡Jugador atacado!")
         }
 
         self.comprobarFinDeBatalla()
 
-        if (!self.esTurnoFinalizado()){
-            self.cambiarAturnoDelJugador()
-        }
+        // POLIMÓRFICO: Le digo al estado "pasá al turno siguiente".
+        // Si el estado es 'turnoEnemigo' pasará a 'turnoJugador'.
+        // Si es 'batallaFinalizada', no hará nada.
+        estadoActual.pasarTurno(self)
     }
-
 
     method comprobarFinDeBatalla() {
-        if (!enemigo.estaVivo()){
-            self.finalizarTurno()
+        if (!enemigo.estaVivo()) {
+            estadoActual = batallaFinalizada
             game.say(jugador, "¡El jugador ganó la batalla!")
-        } else if (!jugador.estaVivo()){
-            self.finalizarTurno()
+        } else if (!jugador.estaVivo()) {
+            estadoActual = batallaFinalizada
             game.say(enemigo, "El jugador ha sido derrotado...")
         }
-        // Si ambos siguen vivos, no pasa nada y la pelea continúa
     }
-
-    method procesarPocionJugador() {
-    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
-        // Cura 40 de vida (sin pasar el máximo)
-        jugador.vida((jugador.vida() + 40).min(jugador.vidaMaxima()))
-        game.say(jugador, "¡Usé una poción y recuperé vida!")
-        
-        self.pasarTurnoAlEnemigoAutomaticamente()
-    }
-    }
-
-    // Acción RENDIRSE / DEFENDERSE (Letra R)
-    method procesarRendirseJugador() {
-    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
-        self.finalizarTurno()
-        game.say(jugador, "Me rindo... ¡Vos ganás!")
-        game.say(enemigo, "¡Ja! Sabía que ibas a arrugar.")
-    }
-
-    //PASAR AL MAPA ANTERIOR
-    }
-
-    method pasarTurnoAlEnemigoAutomaticamente() {
-        self.cambiarATurnoEnemigo()
-        game.schedule(1500, { self.ejecutarTurnoEnemigo() })
-    }
-
-    method procesarDefensaJugador() {
-    if (self.esTurnoDelJugador() and jugador.estaVivo()) {
-        
-        jugador.defenderse()
-        game.say(jugador, "¡Me defiendo! El próximo golpe dolerá menos.")
-        
-        // Le pasamos el turno al enemigo de forma automática
-        self.cambiarATurnoEnemigo()
-        game.schedule(1500, { self.ejecutarTurnoEnemigo() })
-    }
-}
-
 }

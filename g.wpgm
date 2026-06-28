@@ -37,8 +37,8 @@ program juego {
 
     const menuAcciones = new OpcionMenu(position = game.at(9, 1), image = "cuadroAcciones.png")
 
-    keyboard.a().onPressDo({ managerDeBatallas.procesarTurnoJugador() })      // A -> Atacar
-    keyboard.s().onPressDo({ managerDeBatallas.procesarRendirseJugador() })   // R -> Rendirse
+    keyboard.a().onPressDo({ managerDeBatallas.procesarAtaqueJugador() })      // A -> Atacar
+    keyboard.s().onPressDo({ managerDeBatallas.procesarRendicionJugador() })   // R -> Rendirse
     keyboard.d().onPressDo({ managerDeBatallas.procesarPocionJugador() })     // E -> Equipo (Poción)
     keyboard.f().onPressDo({ managerDeBatallas.procesarDefensaJugador() })    // D -> Defenderse
 

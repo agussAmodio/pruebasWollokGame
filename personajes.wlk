@@ -29,4 +29,7 @@ class Personaje{
         estaDefendiendose = true
     }
     
+    method recibirCuracion(cantidad) {
+        vida = (vida + cantidad).min(self.vidaMaxima())
+    }
 }
