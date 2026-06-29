@@ -3,12 +3,13 @@ import personajes.*
 import managerDeBatallas.*
 import opcionMenu.*
 import barraDeVida.*
+import minijuegos.*
 
 program juego {
     game.title("Combate por Turnos")
     game.height(10)
     game.width(15)
-    game.boardGround("fondo_biblioteca.jpeg") // Tu fondo estilo la imagen
+    game.boardGround("mapaDojoCombate.png")
 
     // 2. CREACIÓN DE LOS PERSONAJES (Instancias)
     const heroe = new Personaje(
@@ -16,37 +17,40 @@ program juego {
         vidaMaxima = 100, 
         fuerza = 25, 
         defensa = 10,
-        position = game.at(2, 3), 
+        position = game.at(3, 2), 
         image = "jugadorPiernas.png"
     )
 
     const rival = new Personaje(
         nombre = "Rival", 
-        vidaMaxima = 120, 
+        vidaMaxima = 2000000, 
         fuerza = 20, 
         defensa = 12,
-        position = game.at(10, 5), 
+        position = game.at(10, 4), 
         image = "enemigoCombate1.png"
     )
 
-    managerDeBatallas.jugador(heroe)
-    managerDeBatallas.enemigo(rival)
+    const batallaDeEntrenamiento = new ManagerDeBatalla(jugador = heroe, enemigo = rival)
 
-    const vidaHeroeTexto = new MarcadorVida(personaje = heroe, position = game.at(4, 9))
-    const vidaRivalTexto = new MarcadorVida(personaje = rival, position = game.at(10, 5))
+    const barraDeVidaAliado = new MarcadorVida(personaje = heroe, position = game.at(3, 7))
+    const barraDeVidaEnemigo = new MarcadorVida(personaje = rival, position = game.at(10, 8))
 
-    const menuAcciones = new OpcionMenu(position = game.at(9, 1), image = "cuadroAcciones.png")
+    const menuAcciones = new OpcionMenu(position = game.at(9 , 0), image = "cuadroAcciones2.png")
+    const cuadroDialogo = new OpcionMenu(position = game.at(0, 0), image = "cuadroDecision.png")
 
-    keyboard.a().onPressDo({ managerDeBatallas.procesarAtaqueJugador() })      // A -> Atacar
-    keyboard.s().onPressDo({ managerDeBatallas.procesarRendicionJugador() })   // R -> Rendirse
-    keyboard.d().onPressDo({ managerDeBatallas.procesarPocionJugador() })     // E -> Equipo (Poción)
-    keyboard.f().onPressDo({ managerDeBatallas.procesarDefensaJugador() })    // D -> Defenderse
+    keyboard.a().onPressDo({ batallaDeEntrenamiento.procesarAtaqueJugador() })   
+    keyboard.r().onPressDo({ batallaDeEntrenamiento.procesarRendicionJugador() })   
+    keyboard.e().onPressDo({ batallaDeEntrenamiento.procesarPocionJugador() })     
+    keyboard.d().onPressDo({ batallaDeEntrenamiento.procesarDefensaJugador() })    
+    keyboard.x().onPressDo({ miniJuegoCuracion.registrarClick() })
+
 
     game.addVisual(heroe)
     game.addVisual(rival)
     game.addVisual(menuAcciones)
-    game.addVisual(vidaHeroeTexto)
-    game.addVisual(vidaRivalTexto)
+    game.addVisual(cuadroDialogo)
+    game.addVisual(barraDeVidaAliado)
+    game.addVisual(barraDeVidaEnemigo)
 
     game.start()
 }

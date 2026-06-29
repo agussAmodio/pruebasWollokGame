@@ -1,4 +1,5 @@
 import personajes.*
+import minijuegos.*
 object turnoJugador {
     method atacar(manager) {
         manager.jugador().atacar(manager.enemigo())
@@ -10,9 +11,15 @@ object turnoJugador {
     }
 
     method usarPocion(manager) {
-        manager.jugador().recibirCuracion(40) 
-        game.say(manager.jugador(), "¡Usé una poción y recuperé vida!")
-        self.pasarTurno(manager)
+        //AGREGADO MINIJUEGO
+        manager.estadoActual(turnoMinijuego)
+        miniJuegoCuracion.iniciar(manager)
+
+
+        // ESTA PARTE FUNCIONA
+        //manager.jugador().recibirCuracion(40) 
+        //game.say(manager.jugador(), "¡Usé una poción y recuperé vida!")
+        //self.pasarTurno(manager)
     }
 
     method defenderse(manager) {
@@ -56,10 +63,34 @@ object batallaFinalizada {
     method pasarTurno(manager) {} 
 }
 
-object managerDeBatallas {
+object turnoMinijuego {
+    method atacar(manager) {}
+    method usarPocion(manager) {}
+    method defenderse(manager) {}
+    method rendirse(manager) {}
+
+    // Este método lo va a llamar el minijuego al terminar
+    method finalizarMinijuego(manager, ganoElMinijuego) {
+        if (ganoElMinijuego) {
+            manager.jugador().recibirCuracion(20) // Curación potenciada si apretó rápido!
+            game.say(manager.jugador(), "¡Poción perfecta! Recuperé mucha vida.")
+        } else {
+            manager.jugador().recibirCuracion(10) // Curación débil si falló o no llegó
+            game.say(manager.jugador(), "Se me derramó un poco... Recuperé poca vida.")
+        }
+        
+        manager.comprobarFinDeBatalla()
+        
+        // Pasamos el turno al enemigo de forma normal
+        manager.estadoActual(turnoEnemigo)
+        game.schedule(1500, { manager.ejecutarTurnoEnemigo() })
+    }
+}
+
+class ManagerDeBatalla {
     var property jugador = null
     var property enemigo = null
-    var property estadoActual = turnoJugador 
+    var property estadoActual = turnoJugador
 
     // Métodos de la interfaz/teclado
     method procesarAtaqueJugador() {

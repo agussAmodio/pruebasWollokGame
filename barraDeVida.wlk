@@ -1,14 +1,17 @@
 class MarcadorVida {
-    const property personaje // El personaje al que le mide la vida
-    var property position   // Dónde se va a ubicar en la pantalla
-    
-    // Wollok pide este método para dibujar texto en lugar de una imagen
-    method text() {
-        return "HP: " + personaje.vida() + " / " + personaje.vidaMaxima()
+    const property personaje  
+    var property position     
+
+    method image() = "marcadorDeVida" + self.porcentajeDeVidaRedondeado() + ".png"
+
+    method porcentajeDeVidaRedondeado() {
+        if (personaje == null) return 100
+        return ((self.porcentajeExacto() / 10).round() * 10).min(100).max(0)
     }
-    
-    // Opcional: Podés cambiar el color del texto usando un String en formato Hexadecimal (RGB)
-    method textColor() {
-        return "FF0000FF" // Rojo brillante en formato ARGB
-    }
+
+    method porcentajeExacto() = (personaje.vida() * 100) / personaje.vidaMaxima()
+
+    method text() = personaje.vida().toString() + " / " + personaje.vidaMaxima().toString()
+
+    method textColor() = "FF0000"
 }
