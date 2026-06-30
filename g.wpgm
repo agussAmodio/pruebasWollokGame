@@ -23,7 +23,7 @@ program juego {
 
     const rival = new Personaje(
         nombre = "Rival", 
-        vidaMaxima = 2000000, 
+        vidaMaxima = 250, 
         fuerza = 20, 
         defensa = 12,
         position = game.at(10, 4), 
@@ -43,6 +43,7 @@ program juego {
     keyboard.e().onPressDo({ batallaDeEntrenamiento.procesarPocionJugador() })     
     keyboard.d().onPressDo({ batallaDeEntrenamiento.procesarDefensaJugador() })    
     keyboard.x().onPressDo({ miniJuegoCuracion.registrarClick() })
+    keyboard.space().onPressDo({ miniJuegoAtaque.detenerYValidar() })
 
 
     game.addVisual(heroe)

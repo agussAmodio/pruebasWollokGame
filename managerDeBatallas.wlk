@@ -2,19 +2,23 @@ import personajes.*
 import minijuegos.*
 object turnoJugador {
     method atacar(manager) {
-        manager.jugador().atacar(manager.enemigo())
-        game.say(manager.jugador(), "¡Enemigo atacado!")
-        manager.comprobarFinDeBatalla()
+
+        manager.estadoActual(turnoMinijuego)
+        miniJuegoAtaque.iniciar(manager)
+
+        // ESTA PARTE FUNCIONA
+        //manager.jugador().atacar(manager.enemigo())
+        //game.say(manager.jugador(), "¡Enemigo atacado!")
+        //manager.comprobarFinDeBatalla()
         
         // Delegamos el pase de turno al estado actual
-        manager.estadoActual().pasarTurno(manager)
+        //manager.estadoActual().pasarTurno(manager)
     }
 
     method usarPocion(manager) {
         //AGREGADO MINIJUEGO
         manager.estadoActual(turnoMinijuego)
         miniJuegoCuracion.iniciar(manager)
-
 
         // ESTA PARTE FUNCIONA
         //manager.jugador().recibirCuracion(40) 
@@ -70,20 +74,39 @@ object turnoMinijuego {
     method rendirse(manager) {}
 
     // Este método lo va a llamar el minijuego al terminar
-    method finalizarMinijuego(manager, ganoElMinijuego) {
-        if (ganoElMinijuego) {
-            manager.jugador().recibirCuracion(20) // Curación potenciada si apretó rápido!
-            game.say(manager.jugador(), "¡Poción perfecta! Recuperé mucha vida.")
+    method finalizarMinijuego(manager, ganoElMinijuego, miniJuego) {
+        
+        // Comparamos directamente contra el objeto que envió el mensaje
+        if (miniJuego == miniJuegoAtaque) {
+            self.procesarResultadoAtaque(manager, ganoElMinijuego)
         } else {
-            manager.jugador().recibirCuracion(10) // Curación débil si falló o no llegó
-            game.say(manager.jugador(), "Se me derramó un poco... Recuperé poca vida.")
+            self.procesarResultadoCuracion(manager, ganoElMinijuego)
         }
         
         manager.comprobarFinDeBatalla()
         
-        // Pasamos el turno al enemigo de forma normal
         manager.estadoActual(turnoEnemigo)
         game.schedule(1500, { manager.ejecutarTurnoEnemigo() })
+    }
+
+    method procesarResultadoAtaque(manager, gano) {
+        if (gano) {
+            manager.enemigo().recibirDaño(manager.jugador().fuerza() * 2) 
+            game.say(manager.jugador(), "¡GOLPE CRÍTICO PERFECTO!")
+        } else {
+            manager.jugador().atacar(manager.enemigo()) 
+            game.say(manager.jugador(), "¡Ataque normal!")
+        }
+    }
+
+    method procesarResultadoCuracion(manager, gano) {
+        if (gano) {
+            manager.jugador().recibirCuracion(40) 
+            game.say(manager.jugador(), "¡Poción perfecta! Recuperé mucha vida.")
+        } else {
+            manager.jugador().recibirCuracion(10) 
+            game.say(manager.jugador(), "Se me derramó un poco... Recuperé poca vida.")
+        }
     }
 }
 
@@ -118,9 +141,6 @@ class ManagerDeBatalla {
 
         self.comprobarFinDeBatalla()
 
-        // POLIMÓRFICO: Le digo al estado "pasá al turno siguiente".
-        // Si el estado es 'turnoEnemigo' pasará a 'turnoJugador'.
-        // Si es 'batallaFinalizada', no hará nada.
         estadoActual.pasarTurno(self)
     }
 
