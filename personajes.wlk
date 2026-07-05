@@ -1,14 +1,14 @@
 class Personaje{
-    const property nombre
-    var property vidaMaxima
-    var property vida = vidaMaxima
-    var property fuerza
-    var property defensa
-    var property estaDefendiendose = false
+    const property nombre // no queda
+    var property vidaMaxima // ok
+    var property vida = vidaMaxima // ok
+    var property fuerza //ok
+    var property defensa //ok
+    var property estaDefendiendose = false // ok
     
    
-   var property position = null
-   var property image = null
+   var property position = null //ok
+   var property image = null // ok
 
     
 
@@ -27,7 +27,7 @@ class Personaje{
 
     method estaVivo() {
         return vida > 0
-    }
+    } // ok
 
     method defenderse() {
         estaDefendiendose = true

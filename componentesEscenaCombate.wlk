@@ -15,3 +15,8 @@ class MarcadorVida {
 
     method textColor() = "FF0000"
 }
+
+class OpcionMenu{
+    var property position
+    var property image
+}

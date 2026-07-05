@@ -2,28 +2,13 @@ import personajes.*
 import minijuegos.*
 object turnoJugador {
     method atacar(manager) {
-
         manager.estadoActual(turnoMinijuego)
         miniJuegoAtaque.iniciar(manager)
-
-        // ESTA PARTE FUNCIONA
-        //manager.jugador().atacar(manager.enemigo())
-        //game.say(manager.jugador(), "¡Enemigo atacado!")
-        //manager.comprobarFinDeBatalla()
-        
-        // Delegamos el pase de turno al estado actual
-        //manager.estadoActual().pasarTurno(manager)
     }
 
     method usarPocion(manager) {
-        //AGREGADO MINIJUEGO
         manager.estadoActual(turnoMinijuego)
         miniJuegoCuracion.iniciar(manager)
-
-        // ESTA PARTE FUNCIONA
-        //manager.jugador().recibirCuracion(40) 
-        //game.say(manager.jugador(), "¡Usé una poción y recuperé vida!")
-        //self.pasarTurno(manager)
     }
 
     method defenderse(manager) {
@@ -110,7 +95,7 @@ object turnoMinijuego {
     }
 }
 
-class ManagerDeBatalla {
+class Batalla {
     var property jugador = null
     var property enemigo = null
     var property estadoActual = turnoJugador
